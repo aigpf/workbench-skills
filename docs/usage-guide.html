@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>用法手册 · 千千工作台</title>
+<style>
+  :root{
+    --bg:#f7f8fa; --card:#fff; --line:#e6e9ee; --line-2:#eff1f4;
+    --ink:#14171c; --ink-2:#545b66; --ink-3:#878f9a;
+    --brand:#2d8cf0; --brand-deep:#1461c8; --brand-wash:#eff6ff;
+    --radius:14px; --shadow:0 10px 26px rgba(20,23,28,.07);
+  }
+  *{box-sizing:border-box}
+  html{background:var(--bg)}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:15px/1.7 system-ui,-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
+    -webkit-font-smoothing:antialiased}
+  .wrap{max-width:1100px;margin:0 auto;padding:0 24px 72px}
+
+  .hero{position:relative;padding:64px 0 40px;text-align:center;overflow:hidden}
+  .hero::before{content:"";position:absolute;inset:-160px 0 auto;height:420px;
+    background:radial-gradient(60% 70% at 50% 0%,#e3eeff 0%,rgba(227,238,255,0) 70%);pointer-events:none}
+  .hero-in{position:relative;max-width:740px;margin:0 auto}
+  .tag{display:inline-flex;align-items:center;gap:7px;height:30px;padding:0 12px;border-radius:999px;
+    background:var(--brand-wash);color:var(--brand-deep);font-size:12.5px;font-weight:600;letter-spacing:.2px}
+  .tag i{width:6px;height:6px;border-radius:50%;background:var(--brand);display:block}
+  .hero h1{margin:18px 0 12px;font-size:38px;line-height:1.25;letter-spacing:-.8px;font-weight:750}
+  .hero h1 em{font-style:normal;color:var(--brand-deep);position:relative;white-space:nowrap}
+  .hero h1 em::after{content:"";position:absolute;left:0;right:0;bottom:2px;height:6px;
+    background:linear-gradient(90deg,rgba(45,140,240,.22),rgba(45,140,240,0));border-radius:3px}
+  .hero p.lead{margin:0 auto;max-width:600px;color:var(--ink-2);font-size:15.5px}
+  .note{display:flex;gap:12px;text-align:left;margin:26px auto 0;max-width:720px;
+    background:#fff;border:1px solid var(--line);border-left:3px solid var(--brand);
+    border-radius:10px;padding:14px 18px;box-shadow:0 6px 18px rgba(20,23,28,.04)}
+  .note b{color:var(--ink);font-weight:650}
+  .note .k{color:var(--brand-deep);font-weight:650}
+  .note svg{flex:0 0 auto;margin-top:3px;color:var(--brand)}
+
+  .steps{display:none}
+
+  .bar{position:sticky;top:0;z-index:20;margin-top:34px;padding:14px 0;
+    background:rgba(247,248,250,.88);backdrop-filter:blur(10px);border-bottom:1px solid var(--line-2)}
+  .bar-in{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+  .search{flex:1 1 280px;min-width:0;display:flex;align-items:center;gap:10px;background:#fff;
+    border:1px solid var(--line);border-radius:11px;padding:0 14px;height:46px}
+  .search:focus-within{border-color:#bcd9f8;box-shadow:0 0 0 3px rgba(45,140,240,.12)}
+  .search input{flex:1;min-width:0;border:0;outline:0;background:transparent;font:inherit;font-size:14.5px}
+  .search svg{color:var(--ink-3)}
+  .chips{display:flex;flex-wrap:wrap;gap:7px;min-width:0;flex:1 1 auto}
+  .chip{height:46px;padding:0 15px;border:1px solid var(--line);background:#fff;color:var(--ink-2);
+    border-radius:11px;font:inherit;font-size:13.5px;cursor:pointer;transition:.15s}
+  .chip:hover{border-color:#cfd6e0;color:var(--ink)}
+  .chip.on{background:var(--ink);border-color:var(--ink);color:#fff;font-weight:600}
+
+  .group{margin-top:44px}
+  .ghead{display:flex;align-items:baseline;gap:12px}
+  .ghead .num{font-size:13px;font-weight:700;color:var(--brand);letter-spacing:1.5px}
+  .ghead h2{margin:0;font-size:19px;font-weight:700;letter-spacing:-.2px}
+  .ghead .cnt{color:var(--ink-3);font-size:12.5px}
+  .ghead .rule{flex:1;height:1px;background:var(--line);align-self:center}
+  .gdesc{margin:6px 0 16px;color:var(--ink-3);font-size:13.5px}
+
+  .cards{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .card{position:relative;display:flex;flex-direction:column;gap:10px;background:var(--card);
+    border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px;
+    transition:transform .18s,box-shadow .18s,border-color .18s}
+  .card:hover{transform:translateY(-2px);box-shadow:var(--shadow);border-color:#d8e3f3}
+  .card .scene{display:flex;gap:9px;margin:0;font-size:14.5px;font-weight:650;color:var(--ink);line-height:1.5}
+  .card .scene .dot{flex:0 0 auto;width:6px;height:6px;border-radius:50%;background:var(--brand);margin-top:8px}
+  .card .quote{background:#f8fafd;border:1px solid #e9eff8;border-left:2px solid var(--brand);
+    border-radius:9px;padding:9px 12px 10px}
+  .card .quote .lbl{display:block;font-size:11px;color:var(--ink-3);letter-spacing:.4px;margin-bottom:2px}
+  .card .quote p{margin:0;font-size:15px;line-height:1.6;letter-spacing:-.1px}
+  .card .quote .k{color:var(--brand-deep);font-weight:650}
+  .card .get{display:flex;gap:8px;margin:0;color:var(--ink-2);font-size:13.5px;line-height:1.55}
+  .card .get .g-ico{flex:0 0 auto;color:#b6bfcc;margin-top:2px}
+  .foot{margin-top:auto;display:flex;justify-content:space-between;align-items:center;
+    border-top:1px dashed var(--line-2);padding-top:10px}
+  .foot .idx{color:#c7ced8;font-size:11.5px;font-weight:600;letter-spacing:.5px}
+  .copy{display:inline-flex;align-items:center;gap:6px;height:34px;padding:0 12px;border-radius:8px;
+    border:1px solid var(--line);background:#fff;color:var(--ink-2);font:inherit;font-size:13px;cursor:pointer;transition:.15s}
+  .copy:hover{border-color:var(--brand);color:var(--brand-deep);background:var(--brand-wash)}
+  .copy.ok{border-color:#19be6b;color:#0f9c56;background:#f0fbf5}
+
+  .empty{display:none;text-align:center;padding:64px 0;color:var(--ink-3)}
+  .empty b{display:block;margin-bottom:6px;color:var(--ink);font-size:16px;font-weight:650}
+  footer{margin-top:56px;padding-top:22px;border-top:1px solid var(--line);text-align:center;
+    color:var(--ink-3);font-size:12.5px}
+
+  @media (max-width:860px){
+    .wrap{padding:0 16px 56px}
+    .hero{padding:40px 0 8px}
+    .hero h1{font-size:27px;letter-spacing:-.4px}
+    .hero p.lead{font-size:14.5px}
+    .steps{grid-template-columns:1fr;gap:10px;margin-top:22px}
+    .bar{margin-top:22px;padding:10px 0}
+    .bar-in{gap:9px}
+    .search{order:2;flex-basis:100%;height:44px}
+    .chips{order:1;flex-basis:100%;flex-wrap:nowrap;overflow-x:auto;padding-bottom:2px;gap:7px}
+    .chips::-webkit-scrollbar{display:none}
+    .chip{flex:0 0 auto;height:44px;padding:0 14px}
+    .cards{grid-template-columns:1fr;gap:12px}
+    .group{margin-top:34px}
+    .ghead h2{font-size:17px}
+    .ghead .rule{display:none}
+    .card{padding:14px 15px}
+    .card .quote p{font-size:14.5px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hero">
+    <div class="hero-in">
+      <span class="tag"><i></i>用法手册 · <span id="tagCount">—</span> 个示例</span>
+      <h1>想干什么，就照<em>那句</em>说</h1>
+      <p class="lead">下面每条都是一个例子：先看「你想干的事」，再看「这句话」。名字、数字换成你自己的，意思不用改。</p>
+      <div class="note">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 8v5"/><circle cx="12" cy="16.5" r="1"/><circle cx="12" cy="12" r="9"/></svg>
+        <div>这些句子都是<b>示例</b>，不是必须一字不差。唯一别丢的是开头那句「<span class="k">使用千千工作台技能</span>」——它靠这句才知道你要用哪套本事。用英文说 <span class="k">使用 workbench 技能</span> 也一样，是同一个。</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bar">
+    <div class="bar-in">
+      <div class="search">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.6-3.6"/></svg>
+        <input id="q" type="search" placeholder="搜你想干的事，比如：验收、截图、换电脑">
+      </div>
+      <div class="chips" id="chips"></div>
+    </div>
+  </div>
+
+  <div id="body"></div>
+  <div class="empty" id="empty"><b>没搜到</b>换个词试试，或者点「全部」。</div>
+
+  <footer>千千工作台 · 东西一直在你自己的电脑上</footer>
+</div>
+
+<script>
+const PREFIX = '使用千千工作台技能';
+const GROUPS = [
+  {name:'清单台 · 记事情和进度', desc:'一个网页装下项目、批次、任务、截图和进度；agent 一改，页面 60 秒内自己刷新。'},
+  {name:'验收台 · 让人逐项点', desc:'把这次改动拆成一条条能照着点的活；你在网页上点通过 / 不通过 / 暂缓，结论自己回传。'},
+  {name:'文档台 · md 变网页', desc:'把写好的 md 推上去，页面负责排版给人读；纯只读，能搜、能下载、手机上也能看。'},
+  {name:'分享 · 三种链接', desc:'三种链接各有各的用法；它们都只活十分钟，要长期给人看就落到 md 或截图。'},
+  {name:'备份搬家 · 一个 zip', desc:'三个台的数据和图片原件打进一个压缩包，换电脑、重装、agent 被卸载都能接回来。'}
+];
+
+const D = [
+  /* 01 清单台 */
+  {g:0, s:'你只想把这摊事记下来', q:'把「编辑器重构」这些活记成一个清单，我后面边做边更新', a:'一个网页链接，分了几批、做到哪一步都看得见'},
+  {g:0, s:'你想把这个项目记进清单', q:'把「编辑器重构」这个项目记上，P1，说明写「让顶栏和任务列表能共存」', a:'清单上多一张项目卡，带优先级和一句话说明'},
+  {g:0, s:'你想把一堆活分成几批做', q:'把这个项目拆成两批，第二批按「先做布局，再做交互」拆', a:'项目下面多两个批次，批次上标着你写的拆分规则'},
+  {g:0, s:'你想加一条具体的活', q:'这批下面加一条「顶栏挤掉按钮」，类型布局，P1，备注写复现步骤', a:'批次里多一条任务，带类型、优先级和备注'},
+  {g:0, s:'你想一次加一批活', q:'一次给我加十条任务，标题按下面这串来', a:'十条一起进同一批次，不用你说十遍'},
+  {g:0, s:'你想知道某条做到哪了', q:'把「顶栏挤掉按钮」改成进行中，进度先记 30%', a:'那条变进行中，进度条走到 30%，项目完成数不变'},
+  {g:0, s:'你想一次勾掉几条', q:'这三条一起标成已完成', a:'三条同时变已完成，项目完成数跟着加三'},
+  {g:0, s:'你想把这活挪到别的批次', q:'把这条挪到第二批去，别删了重加', a:'任务换到另一批次，历史记录还在'},
+  {g:0, s:'你想给任务配一张截图', q:'给这条加一张截图，就是刚才那个报错', a:'任务下面多一张图，点开能放大看'},
+  {g:0, s:'你想撤掉一张拍错的图', q:'这张截图不对，删掉', a:'图从任务里去掉，其他内容不动'},
+  {g:0, s:'你想找出被忘掉的任务', q:'列一下哪些任务超过三天没动过', a:'一张名单，专挑你忘了的那些'},
+  {g:0, s:'你想先藏起来但别真删', q:'这条先归档，回头可能还要', a:'清单上看不见，历史留着，随时能恢复'},
+  {g:0, s:'你想把刚藏起来的捡回来', q:'刚才归档的那条恢复回来', a:'那条回到原来的批次里，状态不变'},
+  {g:0, s:'你想知道整体做到哪了', q:'现在几个项目、各做到多少了', a:'每个项目的完成数、进行中、待办，还有页面链接'},
+
+  /* 02 验收台 */
+  {g:1, s:'你只想让人把这次改动验一遍', q:'把这次交付做成一张验收单，我一项一项点', a:'一条链接，每项都能点通过或不通过，结论自动回到你这里'},
+  {g:1, s:'你想为这次交付开一张验收单', q:'这次改动做一张验收单，标题「v1.2 人工验收」，来源任务写「编辑器重构」，环境写测试环境', a:'一张验收单，带标题、来源任务、环境和一句验收重点'},
+  {g:1, s:'你想把验收单按轻重分章', q:'验收单分三章：P0 主流程、P1 细节、P2 兼容', a:'单子里三个章节，按优先级分开排队'},
+  {g:1, s:'你想加一条能照着点的验收项', q:'P0 那章加一条：首页能看到今日数据；步骤是「打开首页|登录测试账号|查看今日数据」；预期「今日数据非空，金额和订单数一致」', a:'一条能照着点的验收项，步骤和预期就是你给的原话'},
+  {g:1, s:'你想给这项补一条证据', q:'这一条后面补一条证据，把构建日志贴进去', a:'该项下面多一块证据，验收的人点开就能对上'},
+  {g:1, s:'你想自己一项项点结论', q:'把验收链接发我，我要自己一项一项点', a:'带填写权限的链接，点完自动保存回传，没有提交按钮'},
+  {g:1, s:'你想给别人只看不改的链接', q:'再给我一条只能看不能改的链接，我要发群里', a:'一条只读链接，别人只能看，改不了你的结论'},
+  {g:1, s:'你想收回别人点的结论', q:'「不通过」的那两项我写完原因了，你把结果收回去', a:'每项结论和实测原因进你电脑，并标出不通过的是哪两条'},
+  {g:1, s:'你想修完再验一次', q:'没过的两项修好了，追加修复记录，版本写 v1.2.3，再推一次', a:'版本加一，那两项退回「待验」，链接还是老的'},
+  {g:1, s:'你想留一份验收报告', q:'出一份这次验收的报告，落到 report.md', a:'一份 md，谁过了谁没过、原因是什么，全在里面'},
+  {g:1, s:'你想说明自动化结果不算验收', q:'这是自动化跑的结果，先挂成证据，别写成我已验收', a:'结果进证据区，结论还是待验，等你亲手点'},
+
+  /* 03 文档台 */
+  {g:2, s:'你只想把文档变成能发人的网页', q:'把这份 md 变成网页，我要发给人看', a:'一个网页链接，排好版，能搜能下载，手机上也能读'},
+  {g:2, s:'你想把 md 变成网页给人读', q:'把这份 md 推成网页文档，标题「验收台操作手册」，类型操作文档，项目「工作台」', a:'一个网页链接，排版好的，手机上也能读'},
+  {g:2, s:'你想把文档归到某个项目', q:'把这份需求文档归到「小游戏编辑器」项目下面', a:'文档进那个项目段落，左树里也多一条'},
+  {g:2, s:'你想让文档里有截图', q:'这篇里加三张本地截图', a:'截图自动传上去，正文里直接能看到图'},
+  {g:2, s:'这篇你不想带图', q:'这篇不要图，只推文字', a:'整篇跳过图片上传，正文纯文字'},
+  {g:2, s:'你想改一篇已经发过的', q:'把第二段改一下重新推，版本要加一', a:'同名文档版本加一，链接不变，刷新就是新的'},
+  {g:2, s:'你想找以前写过的文档', q:'文档台里搜「令牌 回传」，看写过哪些', a:'命中的文档列出来，正文命中的也算，空格分词'},
+  {g:2, s:'你想把搜索结果直接发人', q:'把这次的搜索结果链接发我，我直接转给他', a:'一条带搜索词的链接，别人打开就是同样的结果'},
+  {g:2, s:'你想让人直接跳到他关心的一节', q:'这篇长文给我一个能跳到某一节的链接', a:'一条定位到那一节的链接，打开就在那儿'},
+  {g:2, s:'你想把原文存成本地文件', q:'把这篇原文下载成 md 给我', a:'浏览器下到一个 md 文件，文件名就是标题'},
+  {g:2, s:'你想确认手机上看得下去', q:'手机上打开这篇，表格会不会挤成一团', a:'表格能左右滑，页面本身不横向溢出，字也够大'},
+
+  /* 04 分享 */
+  {g:3, s:'你只想把一条链接发给别人', q:'把这个台的链接发我，我转给别人看', a:'一条只读链接，对方不用装任何东西，点开就能看'},
+  {g:3, s:'你想让人看进度', q:'清单链接发我，我转给朋友看进度', a:'一条只读链接，他不用装东西，进度随时看'},
+  {g:3, s:'你想让人自己填结论', q:'验收链接给他，我要看他自己点的结论', a:'带 r= 的链接，他填完自动回传，你这边收得到'},
+  {g:3, s:'你想让人随时能打开', q:'文档链接发群里，他随时能打开', a:'一条只读网页，过期后也能读，因为正文进了他浏览器缓存'},
+  {g:3, s:'你想知道链接能放多久', q:'这条链接要放几天，别人随时点开都能看吗', a:'它会告诉你链接只活十分钟，长期给人看就发 md 文件'},
+
+  /* 05 备份 */
+  {g:4, s:'你想把全部数据打包', q:'把三个台的数据导成一个 zip', a:'一个压缩包，清单、验收、文档都在，图片是原件'},
+  {g:4, s:'你想确认备份没坏', q:'先体检一下这个 zip 有没有坏', a:'只读检查，能列出几份数据、几张图，坏在哪一行'},
+  {g:4, s:'你想在新电脑接回来', q:'我换电脑了，把这个 zip 接回来', a:'数据原样回来，编号、版本、图片都对得上'},
+  {g:4, s:'你想让它自己每天备份', q:'每天自动存一份到 D:\\备份，留最近 14 份', a:'配一次就够，每次推完自动存，内容没变就跳过'},
+  {g:4, s:'你想知道最坏情况还剩什么', q:'agent 被卸了、电脑也坏了，我还能拿回什么', a:'最后一次存下的那包全在，三个台一条不少'}
+];
+
+const COPY_ICON = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 012-2h8"/></svg>';
+const ARROW_ICON = '<svg class="g-ico" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 17h9a4 4 0 004-4V6"/><path d="M14 9l3-3 3 3"/></svg>';
+
+const chipsEl = document.getElementById('chips');
+const bodyEl = document.getElementById('body');
+const emptyEl = document.getElementById('empty');
+const qEl = document.getElementById('q');
+document.getElementById('tagCount').textContent = D.length;
+let cur = '全部';
+
+['全部', ...GROUPS.map(g => g.name.split(' · ')[0])].forEach((g, i) => {
+  const b = document.createElement('button');
+  b.className = 'chip' + (i === 0 ? ' on' : '');
+  b.textContent = g;
+  b.onclick = () => { cur = g; [...chipsEl.children].forEach(c => c.classList.toggle('on', c === b)); render(); };
+  chipsEl.appendChild(b);
+});
+
+function sentence(d){ return PREFIX + '，' + d.q; }
+
+function card(d, i){
+  const el = document.createElement('div');
+  el.className = 'card';
+  el.innerHTML = `<p class="scene"><span class="dot"></span><span>${d.s}</span></p>
+    <div class="quote"><span class="lbl">你这么说</span>
+      <p><span class="k">${PREFIX}</span>，${d.q}</p></div>
+    <p class="get">${ARROW_ICON}<span>${d.a}</span></p>
+    <div class="foot"><span class="idx">${String(i + 1).padStart(2, '0')}</span>
+    <button class="copy">${COPY_ICON}<span>复制这句</span></button></div>`;
+  el.querySelector('.copy').onclick = (e) => {
+    const btn = e.currentTarget, t = sentence(d);
+    const done = () => { btn.classList.add('ok'); btn.querySelector('span').textContent = '已复制';
+      setTimeout(() => { btn.classList.remove('ok'); btn.querySelector('span').textContent = '复制这句'; }, 1400); };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(done, fallback); else fallback();
+    function fallback(){
+      const ta = document.createElement('textarea'); ta.value = t;
+      ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy'); } catch(_) {}
+      document.body.removeChild(ta); done();
+    }
+  };
+  return el;
+}
+
+function render(){
+  const kw = qEl.value.trim().toLowerCase();
+  bodyEl.innerHTML = '';
+  let total = 0;
+  GROUPS.forEach((grp, gi) => {
+    const short = grp.name.split(' · ')[0];
+    if (cur !== '全部' && short !== cur) return;
+    const ds = D.map((d, i) => ({d, i})).filter(({d}) => d.g === gi &&
+      (!kw || (d.q + d.a + d.s + grp.name).toLowerCase().includes(kw)));
+    if (!ds.length) return;
+    total += ds.length;
+    const sec = document.createElement('section');
+    sec.className = 'group';
+    sec.innerHTML = `<div class="ghead"><span class="num">0${gi + 1}</span><h2>${grp.name}</h2>
+      <span class="cnt">${ds.length} 个示例</span><span class="rule"></span></div>
+      <p class="gdesc">${grp.desc}</p>`;
+    const grid = document.createElement('div');
+    grid.className = 'cards';
+    ds.forEach(({d, i}) => grid.appendChild(card(d, i)));
+    sec.appendChild(grid);
+    bodyEl.appendChild(sec);
+  });
+  emptyEl.style.display = total ? 'none' : 'block';
+}
+
+qEl.addEventListener('input', render);
+render();
+</script>
+</body>
+</html>
