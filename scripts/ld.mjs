@@ -31,6 +31,7 @@ import {
   fail
 } from './lib/listdeck/data.mjs'
 import { pushSnapshot, pullSnapshot } from './lib/listdeck/push.mjs'
+import { claimDevice } from './lib/listdeck/claim.mjs'
 import { uploadImage } from './lib/listdeck/img.mjs'
 
 const MIN_NODE = 18
@@ -145,6 +146,7 @@ const HELP = {
         'key      只输出频道 key 与页面地址',
         'url      只输出页面地址',
         'config   --sync-url / --sync-token / --relay-url / --relay-token；不带参数时查看（令牌打码）',
+        'claim    [--name <设备名>] [--force]  新设备自助领一个频道和专属令牌，并把本机数据推上去',
         'adopt    --key <key> [--token <t>] [--url <u>]  接入已有频道并立即 pull'
       ]
     },
@@ -187,7 +189,7 @@ const HELP = {
 function pushHint(r) {
   if (!r || r.ok) return undefined
   if (r.status === 401 || r.status === 403) {
-    return '同步令牌不对：node scripts/ld.mjs config --sync-token <服务器 SYNC_TOKEN 同值>，再重试写命令'
+    return '同步令牌不对：新设备用 node scripts/ld.mjs claim 自助领一个（会换新频道）；要沿用老频道就 config --sync-token <那台机器原来的令牌>，再重试'
   }
   if (r.status === 404) return '推送路由不存在：确认 syncUrl 指到站点根（如 https://qianqianquege.com），不要带 /api'
   if (r.status >= 500) return '服务器中转异常：稍后重试；持续失败找维护者看 PM2'
@@ -300,7 +302,7 @@ async function run() {
 
       add('token', !!cfg.syncToken, 'soft', cfg.syncToken
         ? '已配置同步令牌，可写'
-        : '未配置同步令牌：只能读；写入会 401，用 config --sync-token 补')
+        : '未配置同步令牌：写不进去。新设备用 node scripts/ld.mjs claim 自助领一个；老频道用 config --sync-token 补')
 
       add('relay', !!(cfg.relayUrl || cfg.syncUrl), 'soft', cfg.relayUrl || cfg.syncUrl || '未配置图片中转地址')
 
@@ -392,6 +394,33 @@ async function run() {
       const { text } = await readData()
       const r = await pushSnapshot(text)
       return out({ ok: !!r.ok, channel: cfg.channel, hint: pushHint(r), ...r }, r.ok ? 0 : 1)
+    }
+
+    // 新电脑、新环境：不用问任何人要令牌，服务器直接发一个自己的频道
+    case 'claim': {
+      if (cfg.channel && cfg.syncToken && !flags.force) {
+        return out({
+          ok: true,
+          skipped: true,
+          channel: cfg.channel,
+          pageUrl: pageUrl(cfg),
+          syncTokenSet: true,
+          note: '本机已经有频道和令牌；确实要另领一个就加 --force（会换频道，本机旧数据不会自动搬过去）'
+        })
+      }
+      const r = await claimDevice({ name: flags.name === true ? '' : flags.name })
+      if (!r.ok) return out({ ok: false, error: r.error, ...(r.status ? { status: r.status } : {}) }, 1)
+      const { text } = await readData()
+      const p = await pushSnapshot(text, { quiet: true })
+      return out({
+        ok: true,
+        channel: r.channel,
+        pageUrl: r.pageUrl,
+        syncTokenSet: true,
+        pushed: !!p.ok,
+        ...(p.ok ? {} : { pushError: p.status ? `HTTP ${p.status}` : (p.error || 'unknown'), pushHint: pushHint(p) }),
+        note: '这是一台设备一套数据；把 pageUrl 直接发给用户，手机打开同一个链接看的是同一份快照'
+      })
     }
 
     // 手机、另一台电脑：把频道 key 带过来，接上同一个抽屉

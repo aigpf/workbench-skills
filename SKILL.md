@@ -5,9 +5,10 @@ description: 使用已经在线的「千千工作台」平台，统一处理 Lis
 
 # 千千工作台 Workbench
 
-> 版本：2.7.0
+> 版本：2.7.1
 > 平台 Skill：一个入口覆盖 ListDeck 清单台、AcceptanceDeck 验收台与 DocDeck 文档台。
 > 以后新增子平台时，升级这个 Skill，不再为每个页面复制一套连接和协议。
+> 2.7.1：清单台新增 `ld.mjs claim` —— 新电脑/新环境不用等人给令牌，服务器当场发一个频道和这个频道的专属写令牌；一台设备一套数据，同一 pageUrl 可在手机上看同一份。
 > 2.7.0：新增数据搬家 `scripts/portable.mjs`（export / import / verify / auto），图片上传后本机留副本，`connect` 推送成功后自动导一份；看到 zip 一律走 `import`，不许分析重建。
 > 2.6.3：文档台合并成一页（项目树 + 按项目分节的文档卡片 + 全局搜索），项目不再单独占一级地址，旧 `#/p/<项目名>` 自动重定向；搜索支持空格分词、命中正文、`?q=` 分享。
 > 2.6.1：文档台支持图片分流（本地截图自动传 7002 中转，外链不动）与页面图片落本机缓存；长文顶栏固定、目录节数跟随。
@@ -57,10 +58,15 @@ node scripts/ld.mjs status
 如果当前环境还没有接入用户频道：
 
 ```bash
-node scripts/ld.mjs adopt --key <KEY> --token <SYNC_TOKEN>
+node scripts/ld.mjs claim --name "家里台式机"      # 新设备：自己领一个频道 + 专属令牌，并把本机数据推上去
+node scripts/ld.mjs adopt --key <KEY> --token <SYNC_TOKEN>   # 接用户已有的那个频道
 ```
 
-`adopt` 是 agent 的环境初始化，不要写进给用户的回答，也不要让用户执行。没有 key 和令牌就先问用户，不要自己生成新 key 把数据分叉。
+`claim` 和 `adopt` 都是 agent 的环境初始化，不要写进给用户的回答，也不要让用户执行。
+
+- **新电脑、新环境、手上什么令牌都没有**：用 `claim`。服务器当场发一个随机频道 key 和一个只对这个频道有效的写令牌，写进本机 `config.json`，顺手把本机数据推上去。**不要问用户要 SYNC_TOKEN**；只有用户明确说「接着用那台机器原来那份清单」时才走 `adopt`。
+- `adopt` 是接别人的抽屉：key 和令牌必须成对来自同一条频道，抄错就是空频道。
+- 一台设备一套数据；把 `claim` 返回的 `pageUrl` 发给用户，手机打开同一个链接看的是同一份快照。页面是只读的，改数据仍然只由 agent 写。
 
 常用写法：
 
@@ -244,7 +250,7 @@ node scripts/portable.mjs auto --dir D:\备份\workbench                        
 - 不手改 `projects.json` / `plans.json` / `docs.json`；写操作走 CLI。
 - 看到数据 zip 只许 `portable.mjs import` 原样写回，不许重写内容。
 - 不把 `syncToken` 打进 zip、写进文档、贴进聊天。
-- 不擅自新建频道、换 key、把数据分叉；没有用户给的 key 就询问。
+- 不擅自新建频道、换 key、把数据分叉；有用户给的 key 就用 `adopt` 接上去。本机原本没有频道、也没有令牌时，`claim` 领一个自己的频道是正常初始化，不算分叉。
 - 不删用户没让删的项目、批次、条目；批量删除前逐条确认。
 - 不伪造人工结论；agent 只能维护计划、拉取结果、追加修复记录。
 - 文档台页面零回写：不要在给人看的文档里承诺“用户可以在页面上改”。

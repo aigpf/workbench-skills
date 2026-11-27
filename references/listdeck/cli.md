@@ -21,6 +21,7 @@
 | `push` | 把当前 `projects.json` 整份覆盖到服务器临时文件并续期 | `{ok,channel,data:{channel,etag,projects,ttlSeconds,expiresAt}}` |
 | `pull` | 拉频道最新，服务器 `revision` 更新才覆盖本地 | `{pulled,lastWrite,revision,projects}` |
 | `adopt --key <key> [--token <token>] [--url <url>]` | 接入已有频道：写 key（可选令牌/地址）并立即 pull | `{channel,pageUrl,pulled,projects?}`；频道为空时带 `note` |
+| `claim [--name <设备名>] [--force]` | 新设备自助领频道：向服务器申请随机 key + 该频道专属写令牌，写进本机并立刻 push | `{channel,pageUrl,syncTokenSet,pushed}`；已有频道令牌时 `skipped:true`，`--force` 才另领 |
 | `backup` | 备份当前数据到 `~/.workbench/listdeck/backups/`，保留最近 20 份 | `{file,kept}` |
 
 `config` 支持的 flag：
@@ -28,13 +29,13 @@
 | flag | 含义 |
 | --- | --- |
 | `--sync-url <url>` | 快照服务根地址，默认 `https://qianqianquege.com` |
-| `--sync-token <token>` | 推送令牌（服务器 `SYNC_TOKEN` 同值），写操作必需 |
+| `--sync-token <token>` | 推送令牌：服务器 `SYNC_TOKEN` 同值，或本频道 `claim` 领到的专属令牌，二者取一 |
 | `--relay-url <url>` | 图片中转地址，默认跟 `syncUrl` 同域 |
 | `--relay-token <token>` | 图片中转令牌，一般留空 |
 
 环境变量（优先级高于 `config.json`）：`LD_DATA_DIR`、`LD_CHANNEL`、`LD_SYNC_URL`、`LD_SYNC_TOKEN`、`LD_RELAY_URL`、`LD_RELAY_TOKEN`、`LD_BOOTSTRAP_FROM`、`TZ_NAME`。
 
-首次运行会生成 20 位频道 key 并写进 `~/.workbench/listdeck/config.json`。**接入别人的清单时先 `adopt`，不要先跑别的命令**。
+首次运行会生成 20 位频道 key 并写进 `~/.workbench/listdeck/config.json`。**接入别人的清单时先 `adopt`，不要先跑别的命令**；新设备自己用就 `claim`，不用等任何人给令牌。
 
 ## 临时邮筒与连接续期
 

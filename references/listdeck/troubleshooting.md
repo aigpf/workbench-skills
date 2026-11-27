@@ -27,8 +27,8 @@
 
 | 返回 | 原因 | 动作 |
 | --- | --- | --- |
-| `HTTP 401` / `sync_token_invalid` | 令牌缺失或与服务器 `SYNC_TOKEN` 不一致 | `config --sync-token <正确值>`，再重试任意写命令 |
-| `HTTP 401` 且从没配过令牌 | 只读接入 | 向用户要 `SYNC_TOKEN` |
+| `HTTP 401` / `sync_token_invalid` | 令牌缺失或与服务器对不上 | 本机没配过令牌 → `claim` 自助领一个（新频道）；要沿用老频道 → `config --sync-token <那个频道原来的令牌>`，再重试任意写命令 |
+| `HTTP 429` / `claim_rate_limited` | 同一来源领频道太频繁 | 隔一段时间再 `claim`；不要把 `claim` 放进循环重试 |
 | `HTTP 404` | `syncUrl` 指错（指到了 `/api` 或别的路径） | `config --sync-url https://qianqianquege.com` |
 | 超时 / `ENOTFOUND` / `ECONNREFUSED` | 网络或服务器不可达 | 数据已落盘；恢复后 `push`。`doctor` 复测 |
 | `HTTP 5xx` | 服务器中转异常 | 稍后 `push`；持续失败让用户看 PM2 |
@@ -63,7 +63,7 @@
 | `data` | `projects.json` 存在且可解析 | `backup` + 人工确认，别覆盖 |
 | `channel` | 频道 key 格式（20 位小写字母数字） | `adopt --key <正确值>` |
 | `sync` | 快照接口可达 | 检查网络 / `config --sync-url` |
-| `token`（soft） | 是否配了同步令牌 | 只读可忽略；写必须配 |
+| `token`（soft） | 是否配了同步令牌 | 只读可忽略；要写就 `claim` 或 `config --sync-token` |
 | `relay`（soft） | 图片中转地址是否配置 | 默认跟 `syncUrl`，一般无需单独配 |
 
 ## 不属于本 skill 的事
